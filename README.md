@@ -1,0 +1,1 @@
+參考 https://finmindtrade.com/analysis/#/dashboards/taiwan-stock-analysis
