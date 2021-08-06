@@ -2,7 +2,7 @@
   <router-view />
 </template>
 
-<script setup></script>
+<script></script>
 
 <style>
 @import url(https://fonts.googleapis.com/earlyaccess/cwtexfangsong.css);
