@@ -29,15 +29,21 @@
               </tr>
               <tr>
                 <td class="right-align">漲跌</td>
-                <td class="right-align">{{ StockInfoData.StockPrice.StockPrice.spread }}</td>
+                <td class="right-align">
+                  {{ StockInfoData.StockPrice.StockPrice.spread }}
+                </td>
               </tr>
               <tr>
                 <td class="right-align">開盤</td>
-                <td class="right-align">{{ StockInfoData.StockPrice.StockPrice.open }}</td>
+                <td class="right-align">
+                  {{ StockInfoData.StockPrice.StockPrice.open }}
+                </td>
               </tr>
               <tr>
                 <td class="right-align">收盤</td>
-                <td class="right-align">{{ StockInfoData.StockPrice.StockPrice.close }}</td>
+                <td class="right-align">
+                  {{ StockInfoData.StockPrice.StockPrice.close }}
+                </td>
               </tr>
               <tr></tr>
               <tr>
@@ -120,6 +126,51 @@
         </div>
       </div>
     </div>
+    <div class="row">
+      <div
+        class="card horizontal col s12 m6"
+        v-if="Object.keys(StockInfoData.TaiwanStockDividend).length > 0"
+      >
+        <div class="card-stacked">
+          <div class="card-content">
+            <span class="card-title"
+              ><i class="material-icons prefix">blur_circular</i> 現金股票股利</span
+            >
+            <table>
+              <tr>
+                <th class="center-align">年度</th>
+                <th class="center-align">交易日</th>
+                <th class="center-align">發放日</th>
+                <th class="center-align">現金</th>
+                <th class="center-align">股票</th>
+              </tr>
+              <tr
+                v-for="(cashDividend, index) in StockInfoData.TaiwanStockDividend
+                  .CashDividend"
+                :key="index"
+              >
+                <td class="center-align">{{ cashDividend.year }}</td>
+                <td class="center-align">
+                  {{ cashDividend.CashDividendDealDate }}
+                </td>
+                <td class="center-align">
+                  {{ cashDividend.CashDividendReleaseDate }}
+                </td>
+                <td class="right-align">{{ Math.round(cashDividend.CashDividend * 10) / 10 }}</td>
+                <td class="right-align">
+                  {{
+                    Math.round(
+                      StockInfoData.TaiwanStockDividend.StockDividend[index]
+                        .StockDividend * 10
+                    ) / 10
+                  }}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -135,6 +186,7 @@ export default defineComponent({
     const StockInfoData = reactive({
       StockPrice: {},
       InstitutionalInvestor: {},
+      TaiwanStockDividend: {},
     });
 
     const getList = async () => {
