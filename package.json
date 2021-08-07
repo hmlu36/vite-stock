@@ -7,7 +7,6 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@popperjs/core": "^2.9.3",
     "axios": "^0.21.1",
     "material-design-icons": "^3.0.1",
     "materialize-css": "^1.0.0-rc.2",
