@@ -68,10 +68,9 @@
             <tr>
               <td colspan="2" class="right-align">
                 MA:
-                {{ "week:" + StockInfoData.StockPrice.MovingAverage.week }}
-                {{ ", month:" + StockInfoData.StockPrice.MovingAverage.month }}
-                {{ ", period" + StockInfoData.StockPrice.MovingAverage.period }}
-                {{ ", half_year" + StockInfoData.StockPrice.MovingAverage.half_year }}
+                {{ "5ma:" + StockInfoData.StockPrice.MovingAverage.week }}
+                {{ ", 20ma:" + StockInfoData.StockPrice.MovingAverage.month }}
+                {{ ", 60ma" + StockInfoData.StockPrice.MovingAverage.period }}
               </td>
             </tr>
           </table>
