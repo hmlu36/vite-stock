@@ -67,10 +67,9 @@
             </tr>
             <tr>
               <td colspan="2" class="right-align">
-                MA:
                 {{ "5ma:" + StockInfoData.StockPrice.MovingAverage.week }}
                 {{ ", 20ma:" + StockInfoData.StockPrice.MovingAverage.month }}
-                {{ ", 60ma" + StockInfoData.StockPrice.MovingAverage.period }}
+                {{ ", 60ma:" + StockInfoData.StockPrice.MovingAverage.period }}
               </td>
             </tr>
           </table>
@@ -163,10 +162,20 @@
             >
               <td class="center-align">{{ cashDividend.year }}</td>
               <td class="center-align">
-                {{ cashDividend.CashDividendDealDate }}
+                {{
+                  cashDividend.CashDividendDealDate.substring(
+                    5,
+                    cashDividend.CashDividendDealDate.length
+                  )
+                }}
               </td>
               <td class="center-align">
-                {{ cashDividend.CashDividendReleaseDate }}
+                {{
+                  cashDividend.CashDividendReleaseDate.substring(
+                    5,
+                    cashDividend.CashDividendReleaseDate.length
+                  )
+                }}
               </td>
               <td class="right-align">
                 {{ Math.round(cashDividend.CashDividend * 10) / 10 }}
