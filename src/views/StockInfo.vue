@@ -1,78 +1,255 @@
 <template>
   <div class="container">
-    <div class="col s12">
-      <div class="row">
-        <div class="input-field col s6 m2">
-          <input type="text" name="autocomplete" />
-          <label>個股資訊</label>
+    <div class="row">
+      <div class="input-field col s6 m2">
+        <input type="text" name="autocomplete" />
+        <label>個股資訊</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <h5 v-if="Object.keys(StockInfoData.StockPrice).length > 0">
+      日期:{{ StockInfoData.StockPrice.update_date }}
+    </h5>
+    <div
+      class="card horizontal col s12 m6"
+      v-if="Object.keys(StockInfoData.StockPrice).length > 0"
+    >
+      <div class="card-stacked">
+        <div class="card-content">
+          <span class="card-title"
+            ><i class="material-icons prefix">ev_station</i> 股價</span
+          >
+          <table class="striped">
+            <tr>
+              <th class="center-align">項目</th>
+              <th class="center-align">數量</th>
+            </tr>
+            <tr>
+              <td class="right-align">漲跌</td>
+              <td class="right-align">
+                {{ StockInfoData.StockPrice.StockPrice.spread }}
+              </td>
+            </tr>
+            <tr>
+              <td class="right-align">開盤 / 收盤</td>
+              <td class="right-align">
+                {{ StockInfoData.StockPrice.StockPrice.open }} /
+                {{ StockInfoData.StockPrice.StockPrice.close }}
+              </td>
+            </tr>
+            <tr>
+              <td class="right-align">最高 / 最低</td>
+              <td class="right-align">
+                {{ StockInfoData.StockPrice.StockPrice.max }} /
+                {{ StockInfoData.StockPrice.StockPrice.min }}
+              </td>
+            </tr>
+            <tr>
+              <td class="right-align">交易量 / 金額</td>
+              <td class="right-align">
+                {{ formatNumber(StockInfoData.StockPrice.StockPrice.Trading_Volume) }} /
+                {{ formatNumber(StockInfoData.StockPrice.StockPrice.Trading_money) }}
+              </td>
+            </tr>
+            <tr>
+              <td class="right-align">RSV</td>
+              <td class="right-align">
+                {{ StockInfoData.StockPrice.TechIndex.rsv }}
+              </td>
+            </tr>
+            <tr>
+              <td class="right-align">BAIS</td>
+              <td class="right-align">
+                {{ StockInfoData.StockPrice.TechIndex.bias }}
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" class="right-align">
+                MA:
+                {{ "week:" + StockInfoData.StockPrice.MovingAverage.week }}
+                {{ ", month:" + StockInfoData.StockPrice.MovingAverage.month }}
+                {{ ", period" + StockInfoData.StockPrice.MovingAverage.period }}
+                {{ ", half_year" + StockInfoData.StockPrice.MovingAverage.half_year }}
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
-
-    <div class="row">
-      <h5 v-if="Object.keys(StockInfoData.StockPrice).length > 0">
-        日期:{{ StockInfoData.StockPrice.update_date }}
-      </h5>
-      <div
-        class="card horizontal col s12 m6"
-        v-if="Object.keys(StockInfoData.StockPrice).length > 0"
-      >
-        <div class="card-stacked">
-          <div class="card-content">
-            <span class="card-title"
-              ><i class="material-icons prefix">ev_station</i> 股價</span
+    <div
+      class="card horizontal col s12 m6"
+      v-if="Object.keys(StockInfoData.InstitutionalInvestor).length > 0"
+    >
+      <div class="card-stacked">
+        <div class="card-content">
+          <span class="card-title">
+            <i class="material-icons prefix">account_circle</i> 三大法人</span
+          >
+          <table class="striped">
+            <tr>
+              <th class="center-align">單位名稱</th>
+              <th class="center-align">買進</th>
+              <th class="center-align">賣出</th>
+              <th class="center-align">買賣差</th>
+            </tr>
+            <tr
+              v-for="(investor, index) in StockInfoData.InstitutionalInvestor
+                .InstitutionalInvestor"
+              :key="index"
             >
-            <table class="responsive-table striped">
+              <td>{{ investor.zh_name }}</td>
+              <td class="right-align">{{ formatNumber(investor.buy) }}</td>
+              <td class="right-align">{{ formatNumber(investor.sell) }}</td>
+              <td class="right-align">{{ formatNumber(investor.spread) }}</td>
+            </tr>
+            <td>合計</td>
+            <td class="right-align">
+              {{
+                formatNumber(
+                  sum(StockInfoData.InstitutionalInvestor.InstitutionalInvestor, "buy")
+                )
+              }}
+            </td>
+            <td class="right-align">
+              {{
+                formatNumber(
+                  sum(StockInfoData.InstitutionalInvestor.InstitutionalInvestor, "sell")
+                )
+              }}
+            </td>
+            <td class="right-align">
+              {{
+                formatNumber(
+                  sum(StockInfoData.InstitutionalInvestor.InstitutionalInvestor, "spread")
+                )
+              }}
+            </td>
+            <tr v-if="Object.keys(StockInfoData.Shareholding).length > 0">
+              <td colspan="4" class="right-align">
+                外資持股比例
+                {{
+                  StockInfoData.Shareholding.Shareholding[0].ForeignInvestmentSharesPer
+                }}% {{ "(" + StockInfoData.Shareholding.Shareholding[0].date + ")" }}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div
+      class="card horizontal col s12 m6"
+      v-if="Object.keys(StockInfoData.TaiwanStockDividend).length > 0"
+    >
+      <div class="card-stacked">
+        <div class="card-content">
+          <span class="card-title"
+            ><i class="material-icons prefix">blur_circular</i> 現金股票股利</span
+          >
+          <table class="striped">
+            <tr>
+              <th class="center-align">年度</th>
+              <th class="center-align">交易日</th>
+              <th class="center-align">發放日</th>
+              <th class="center-align">現金</th>
+              <th class="center-align">股票</th>
+            </tr>
+            <tr
+              v-for="(cashDividend, index) in StockInfoData.TaiwanStockDividend
+                .CashDividend"
+              :key="index"
+            >
+              <td class="center-align">{{ cashDividend.year }}</td>
+              <td class="center-align">
+                {{ cashDividend.CashDividendDealDate }}
+              </td>
+              <td class="center-align">
+                {{ cashDividend.CashDividendReleaseDate }}
+              </td>
+              <td class="right-align">
+                {{ Math.round(cashDividend.CashDividend * 10) / 10 }}
+              </td>
+              <td class="right-align">
+                {{
+                  Math.round(
+                    StockInfoData.TaiwanStockDividend.StockDividend[index].StockDividend *
+                      10
+                  ) / 10
+                }}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col s12 m6">
+      <ul class="tabs left-align">
+        <li class="tab">
+          <a
+            href="#"
+            :class="[{ active: selectedTab == 'financialFeport' }]"
+            @click.prevent="selectedTab = 'financialFeport'"
+            >財報</a
+          >
+        </li>
+        <li class="tab">
+          <a
+            href="#"
+            :class="[{ active: selectedTab == 'cachFlow' }]"
+            @click.prevent="selectedTab = 'cachFlow'"
+            >現金流量表</a
+          >
+        </li>
+        <li class="tab">
+          <a
+            href="#"
+            :class="[{ active: selectedTab == 'balanceSheet' }]"
+            @click.prevent="selectedTab = 'balanceSheet'"
+            >資產負債表</a
+          >
+        </li>
+        <li class="tab">
+          <a
+            href="#"
+            :class="[{ active: selectedTab == 'news' }]"
+            @click.prevent="selectedTab = 'news'"
+            >新聞</a
+          >
+        </li>
+      </ul>
+
+      <div
+        :class="[{ active: selectedTab == 'financialFeport' }]"
+        :style="[{ display: selectedTab == 'financialFeport' ? 'block' : 'none' }]"
+      >
+        <div
+          v-if="Object.keys(StockInfoData.TaiwanFinancialStatements).length > 0"
+          class="card"
+        >
+          <div class="card-content">
+            <span class="center-align card-title">{{
+              StockInfoData.TaiwanFinancialStatements.update_date
+            }}</span>
+            <table class="striped">
               <tr>
                 <th class="center-align">項目</th>
-                <th class="center-align">數量</th>
+                <th class="center-align">季增</th>
+                <th class="center-align">年增</th>
+                <th class="center-align">元</th>
               </tr>
-              <tr>
-                <td class="right-align">漲跌</td>
+              <tr
+                v-for="(financialStatement, index) in StockInfoData
+                  .TaiwanFinancialStatements.TaiwanFinancialStatements"
+                :key="index"
+              >
+                <td class="right-align">{{ financialStatement.origin_name }}</td>
+                <td class="right-align">{{ financialStatement.valueQoQ }}%</td>
+                <td class="right-align">{{ financialStatement.valueYoY }}%</td>
                 <td class="right-align">
-                  {{ StockInfoData.StockPrice.StockPrice.spread }}
-                </td>
-              </tr>
-              <tr>
-                <td class="right-align">開盤 / 收盤</td>
-                <td class="right-align">
-                  {{ StockInfoData.StockPrice.StockPrice.open }} /
-                  {{ StockInfoData.StockPrice.StockPrice.close }}
-                </td>
-              </tr>
-              <tr>
-                <td class="right-align">最高 / 最低</td>
-                <td class="right-align">
-                  {{ StockInfoData.StockPrice.StockPrice.max }} /
-                  {{ StockInfoData.StockPrice.StockPrice.min }}
-                </td>
-              </tr>
-              <tr>
-                <td class="right-align">交易量 / 交易金額</td>
-                <td class="right-align">
-                  {{ formatNumber(StockInfoData.StockPrice.StockPrice.Trading_Volume) }} /
-                  {{ formatNumber(StockInfoData.StockPrice.StockPrice.Trading_money) }}
-                </td>
-              </tr>
-              <tr>
-                <td class="right-align">RSV</td>
-                <td class="right-align">
-                  {{ StockInfoData.StockPrice.TechIndex.rsv }}
-                </td>
-              </tr>
-              <tr>
-                <td class="right-align">BAIS</td>
-                <td class="right-align">
-                  {{ StockInfoData.StockPrice.TechIndex.bias }}
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2" class="right-align">
-                  MovingAverage:
-                  {{ "week:" + StockInfoData.StockPrice.MovingAverage.week }}
-                  {{ ", month:" + StockInfoData.StockPrice.MovingAverage.month }}
-                  {{ ", period" + StockInfoData.StockPrice.MovingAverage.period }}
-                  {{ ", half_year" + StockInfoData.StockPrice.MovingAverage.half_year }}
+                  {{ formatNumber(financialStatement.value) }}
                 </td>
               </tr>
             </table>
@@ -80,277 +257,89 @@
         </div>
       </div>
       <div
-        class="card horizontal col s12 m6"
-        v-if="Object.keys(StockInfoData.InstitutionalInvestor).length > 0"
+        :class="[{ active: selectedTab == 'cachFlow' }]"
+        :style="[{ display: selectedTab == 'cachFlow' ? 'block' : 'none' }]"
       >
-        <div class="card-stacked">
+        <div
+          v-if="Object.keys(StockInfoData.TaiwanCashFlowsStatement).length > 0"
+          class="card"
+        >
           <div class="card-content">
-            <span class="card-title">
-              <i class="material-icons prefix">account_circle</i> 三大法人</span
-            >
-            <table class="responsive-table striped">
+            <span class="center-align card-title">{{
+              StockInfoData.TaiwanCashFlowsStatement.update_date
+            }}</span>
+            <table class="striped">
               <tr>
-                <th class="center-align">單位名稱</th>
-                <th class="center-align">買進</th>
-                <th class="center-align">賣出</th>
-                <th class="center-align">買賣差</th>
+                <th class="center-align">項目</th>
+                <th class="center-align">季增</th>
+                <th class="center-align">年增</th>
+                <th class="center-align">元</th>
               </tr>
               <tr
-                v-for="(investor, index) in StockInfoData.InstitutionalInvestor
-                  .InstitutionalInvestor"
+                v-for="(cashFlowsStatement, index) in StockInfoData
+                  .TaiwanCashFlowsStatement.TaiwanCashFlowsStatement"
                 :key="index"
               >
-                <td>{{ investor.zh_name }}</td>
-                <td class="right-align">{{ formatNumber(investor.buy) }}</td>
-                <td class="right-align">{{ formatNumber(investor.sell) }}</td>
-                <td class="right-align">{{ formatNumber(investor.spread) }}</td>
-              </tr>
-              <td>合計</td>
-              <td class="right-align">
-                {{
-                  formatNumber(
-                    sum(StockInfoData.InstitutionalInvestor.InstitutionalInvestor, "buy")
-                  )
-                }}
-              </td>
-              <td class="right-align">
-                {{
-                  formatNumber(
-                    sum(StockInfoData.InstitutionalInvestor.InstitutionalInvestor, "sell")
-                  )
-                }}
-              </td>
-              <td class="right-align">
-                {{
-                  formatNumber(
-                    sum(
-                      StockInfoData.InstitutionalInvestor.InstitutionalInvestor,
-                      "spread"
-                    )
-                  )
-                }}
-              </td>
-              <tr v-if="Object.keys(StockInfoData.Shareholding).length > 0">
-                <td colspan="3" class="right-align">外資持股比例</td>
-                <td>
-                  {{
-                    StockInfoData.Shareholding.Shareholding[0].ForeignInvestmentSharesPer
-                  }}% {{ "(" + StockInfoData.Shareholding.Shareholding[0].date + ")" }}
+                <td class="right-align">{{ cashFlowsStatement.origin_name }}</td>
+                <td class="right-align">{{ cashFlowsStatement.valueQoQ }}%</td>
+                <td class="right-align">{{ cashFlowsStatement.valueYoY }}%</td>
+                <td class="right-align">
+                  {{ formatNumber(cashFlowsStatement.value) }}
                 </td>
               </tr>
             </table>
           </div>
         </div>
       </div>
-    </div>
-    <div class="row">
       <div
-        class="card horizontal col s12 m6"
-        v-if="Object.keys(StockInfoData.TaiwanStockDividend).length > 0"
+        :class="[{ active: selectedTab == 'balanceSheet' }]"
+        :style="[{ display: selectedTab == 'balanceSheet' ? 'block' : 'none' }]"
       >
-        <div class="card-stacked">
+        <div v-if="Object.keys(StockInfoData.TaiwanBalanceSheet).length > 0" class="card">
           <div class="card-content">
-            <span class="card-title"
-              ><i class="material-icons prefix">blur_circular</i> 現金股票股利</span
-            >
-            <table class="responsive-table striped">
+            <span class="center-align card-title">{{
+              StockInfoData.TaiwanBalanceSheet.update_date
+            }}</span>
+            <table class="striped">
               <tr>
-                <th class="center-align">年度</th>
-                <th class="center-align">交易日</th>
-                <th class="center-align">發放日</th>
-                <th class="center-align">現金</th>
-                <th class="center-align">股票</th>
+                <th class="center-align">項目</th>
+                <th class="center-align">季增</th>
+                <th class="center-align">年增</th>
+                <th class="center-align">元</th>
               </tr>
               <tr
-                v-for="(cashDividend, index) in StockInfoData.TaiwanStockDividend
-                  .CashDividend"
+                v-for="(balanceSheet, index) in StockInfoData.TaiwanBalanceSheet
+                  .TaiwanBalanceSheet"
                 :key="index"
               >
-                <td class="center-align">{{ cashDividend.year }}</td>
-                <td class="center-align">
-                  {{ cashDividend.CashDividendDealDate }}
-                </td>
-                <td class="center-align">
-                  {{ cashDividend.CashDividendReleaseDate }}
-                </td>
+                <td class="right-align">{{ balanceSheet.origin_name }}</td>
+                <td class="right-align">{{ balanceSheet.valueQoQ }}%</td>
+                <td class="right-align">{{ balanceSheet.valueYoY }}%</td>
                 <td class="right-align">
-                  {{ Math.round(cashDividend.CashDividend * 10) / 10 }}
-                </td>
-                <td class="right-align">
-                  {{
-                    Math.round(
-                      StockInfoData.TaiwanStockDividend.StockDividend[index]
-                        .StockDividend * 10
-                    ) / 10
-                  }}
+                  {{ formatNumber(balanceSheet.value) }}
                 </td>
               </tr>
             </table>
           </div>
         </div>
       </div>
-      <div class="col s12 m6">
-        <ul class="tabs left-align">
-          <li class="tab">
-            <a
-              href="#"
-              :class="[{ active: selectedTab == 'financialFeport' }]"
-              @click.prevent="selectedTab = 'financialFeport'"
-              >財報</a
-            >
-          </li>
-          <li class="tab">
-            <a
-              href="#"
-              :class="[{ active: selectedTab == 'cachFlow' }]"
-              @click.prevent="selectedTab = 'cachFlow'"
-              >現金流量表</a
-            >
-          </li>
-          <li class="tab">
-            <a
-              href="#"
-              :class="[{ active: selectedTab == 'balanceSheet' }]"
-              @click.prevent="selectedTab = 'balanceSheet'"
-              >資產負債表</a
-            >
-          </li>
-          <li class="tab">
-            <a
-              href="#"
-              :class="[{ active: selectedTab == 'news' }]"
-              @click.prevent="selectedTab = 'news'"
-              >新聞</a
-            >
-          </li>
-        </ul>
-
-        <div
-          :class="[{ active: selectedTab == 'financialFeport' }]"
-          :style="[{ display: selectedTab == 'financialFeport' ? 'block' : 'none' }]"
-        >
-          <div
-            v-if="Object.keys(StockInfoData.TaiwanFinancialStatements).length > 0"
-            class="card"
-          >
-            <div class="card-content">
-              <span class="center-align card-title">{{
-                StockInfoData.TaiwanFinancialStatements.update_date
-              }}</span>
-              <table class="responsive-table striped">
-                <tr>
-                  <th class="center-align">項目</th>
-                  <th class="center-align">季增</th>
-                  <th class="center-align">年增</th>
-                  <th class="center-align">元</th>
-                </tr>
-                <tr
-                  v-for="(financialStatement, index) in StockInfoData
-                    .TaiwanFinancialStatements.TaiwanFinancialStatements"
-                  :key="index"
-                >
-                  <td class="right-align">{{ financialStatement.origin_name }}</td>
-                  <td class="right-align">{{ financialStatement.valueQoQ }}%</td>
-                  <td class="right-align">{{ financialStatement.valueYoY }}%</td>
-                  <td class="right-align">
-                    {{ formatNumber(financialStatement.value) }}
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div
-          :class="[{ active: selectedTab == 'cachFlow' }]"
-          :style="[{ display: selectedTab == 'cachFlow' ? 'block' : 'none' }]"
-        >
-          <div
-            v-if="Object.keys(StockInfoData.TaiwanCashFlowsStatement).length > 0"
-            class="card"
-          >
-            <div class="card-content">
-              <span class="center-align card-title">{{
-                StockInfoData.TaiwanCashFlowsStatement.update_date
-              }}</span>
-              <table class="responsive-table striped">
-                <tr>
-                  <th class="center-align">項目</th>
-                  <th class="center-align">季增</th>
-                  <th class="center-align">年增</th>
-                  <th class="center-align">元</th>
-                </tr>
-                <tr
-                  v-for="(cashFlowsStatement, index) in StockInfoData
-                    .TaiwanCashFlowsStatement.TaiwanCashFlowsStatement"
-                  :key="index"
-                >
-                  <td class="right-align">{{ cashFlowsStatement.origin_name }}</td>
-                  <td class="right-align">{{ cashFlowsStatement.valueQoQ }}%</td>
-                  <td class="right-align">{{ cashFlowsStatement.valueYoY }}%</td>
-                  <td class="right-align">
-                    {{ formatNumber(cashFlowsStatement.value) }}
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div
-          :class="[{ active: selectedTab == 'balanceSheet' }]"
-          :style="[{ display: selectedTab == 'balanceSheet' ? 'block' : 'none' }]"
-        >
-          <div
-            v-if="Object.keys(StockInfoData.TaiwanBalanceSheet).length > 0"
-            class="card"
-          >
-            <div class="card-content">
-              <span class="center-align card-title">{{
-                StockInfoData.TaiwanBalanceSheet.update_date
-              }}</span>
-              <table class="responsive-table striped">
-                <tr>
-                  <th class="center-align">項目</th>
-                  <th class="center-align">季增</th>
-                  <th class="center-align">年增</th>
-                  <th class="center-align">元</th>
-                </tr>
-                <tr
-                  v-for="(balanceSheet, index) in StockInfoData.TaiwanBalanceSheet
-                    .TaiwanBalanceSheet"
-                  :key="index"
-                >
-                  <td class="right-align">{{ balanceSheet.origin_name }}</td>
-                  <td class="right-align">{{ balanceSheet.valueQoQ }}%</td>
-                  <td class="right-align">{{ balanceSheet.valueYoY }}%</td>
-                  <td class="right-align">
-                    {{ formatNumber(balanceSheet.value) }}
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div
-          :class="[{ active: selectedTab == 'news' }]"
-          :style="[{ display: selectedTab == 'news' ? 'block' : 'none' }]"
-        >
-          <div v-if="Object.keys(StockInfoData.TaiwanNews).length > 0">
-            <table class="responsive-table striped">
-              <tr>
-                <th class="center-align">時間</th>
-                <th class="center-align">標題</th>
-              </tr>
-              <tr
-                v-for="(news, index) in StockInfoData.TaiwanNews.TaiwanNews"
-                :key="index"
-              >
-                <td>{{ news.date }}</td>
-                <td>
-                  <a :href="news.link" target="_blank">{{ news.title }}</a>
-                </td>
-              </tr>
-            </table>
-          </div>
+      <div
+        :class="[{ active: selectedTab == 'news' }]"
+        :style="[{ display: selectedTab == 'news' ? 'block' : 'none' }]"
+      >
+        <div v-if="Object.keys(StockInfoData.TaiwanNews).length > 0">
+          <table class="striped">
+            <tr>
+              <th class="center-align">時間</th>
+              <th class="center-align">標題</th>
+            </tr>
+            <tr v-for="(news, index) in StockInfoData.TaiwanNews.TaiwanNews" :key="index">
+              <td>{{ news.date }}</td>
+              <td>
+                <a :href="news.link" target="_blank">{{ news.title }}</a>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
