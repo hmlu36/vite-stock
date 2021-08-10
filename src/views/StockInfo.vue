@@ -3,7 +3,7 @@
     <div class="row">
       <div class="input-field col s6 m2">
         <input type="text" name="autocomplete" />
-        <label>個股資訊</label>
+        <label>個股代碼或名稱</label>
       </div>
     </div>
   </div>
@@ -28,8 +28,9 @@
             </tr>
             <tr>
               <td class="right-align">漲跌</td>
-              <td class="right-align">
+              <td class="right-align" :style="{'color' : (StockInfoData.StockPrice.StockPrice.spread > 0) ? 'red' : 'green'}">
                 {{ StockInfoData.StockPrice.StockPrice.spread }}
+                {{ '(' + StockInfoData.StockPrice.StockPrice.spread_per * 100 + '%)'}} 
               </td>
             </tr>
             <tr>
@@ -49,8 +50,17 @@
             <tr>
               <td class="right-align">交易量 / 金額</td>
               <td class="right-align">
-                {{ formatNumber(StockInfoData.StockPrice.StockPrice.Trading_Volume) }} /
-                {{ formatNumber(StockInfoData.StockPrice.StockPrice.Trading_money) }}
+                {{
+                  formatNumber(
+                    StockInfoData.StockPrice.StockPrice.Trading_Volume
+                  )
+                }}
+                /
+                {{
+                  formatNumber(
+                    StockInfoData.StockPrice.StockPrice.Trading_money
+                  )
+                }}
               </td>
             </tr>
             <tr>
@@ -67,9 +77,9 @@
             </tr>
             <tr>
               <td colspan="2" class="right-align">
-                {{ "5ma:" + StockInfoData.StockPrice.MovingAverage.week }}
-                {{ ", 20ma:" + StockInfoData.StockPrice.MovingAverage.month }}
-                {{ ", 60ma:" + StockInfoData.StockPrice.MovingAverage.period }}
+                {{ '5ma:' + StockInfoData.StockPrice.MovingAverage.week }}
+                {{ ', 20ma:' + StockInfoData.StockPrice.MovingAverage.month }}
+                {{ ', 60ma:' + StockInfoData.StockPrice.MovingAverage.period }}
               </td>
             </tr>
           </table>
@@ -106,21 +116,30 @@
             <td class="right-align">
               {{
                 formatNumber(
-                  sum(StockInfoData.InstitutionalInvestor.InstitutionalInvestor, "buy")
+                  sum(
+                    StockInfoData.InstitutionalInvestor.InstitutionalInvestor,
+                    'buy'
+                  )
                 )
               }}
             </td>
             <td class="right-align">
               {{
                 formatNumber(
-                  sum(StockInfoData.InstitutionalInvestor.InstitutionalInvestor, "sell")
+                  sum(
+                    StockInfoData.InstitutionalInvestor.InstitutionalInvestor,
+                    'sell'
+                  )
                 )
               }}
             </td>
             <td class="right-align">
               {{
                 formatNumber(
-                  sum(StockInfoData.InstitutionalInvestor.InstitutionalInvestor, "spread")
+                  sum(
+                    StockInfoData.InstitutionalInvestor.InstitutionalInvestor,
+                    'spread'
+                  )
                 )
               }}
             </td>
@@ -128,8 +147,12 @@
               <td colspan="4" class="right-align">
                 外資持股比例
                 {{
-                  StockInfoData.Shareholding.Shareholding[0].ForeignInvestmentSharesPer
-                }}% {{ "(" + StockInfoData.Shareholding.Shareholding[0].date + ")" }}
+                  StockInfoData.Shareholding.Shareholding[0]
+                    .ForeignInvestmentSharesPer
+                }}%
+                {{
+                  '(' + StockInfoData.Shareholding.Shareholding[0].date + ')'
+                }}
               </td>
             </tr>
           </table>
@@ -145,7 +168,8 @@
       <div class="card-stacked">
         <div class="card-content">
           <span class="card-title"
-            ><i class="material-icons prefix">blur_circular</i> 現金股票股利</span
+            ><i class="material-icons prefix">blur_circular</i>
+            現金股票股利</span
           >
           <table class="striped">
             <tr>
@@ -166,7 +190,7 @@
                   cashDividend.CashDividendDealDate.substring(
                     5,
                     cashDividend.CashDividendDealDate.length
-                  )
+                  ).replace('-', '/')
                 }}
               </td>
               <td class="center-align">
@@ -174,7 +198,7 @@
                   cashDividend.CashDividendReleaseDate.substring(
                     5,
                     cashDividend.CashDividendReleaseDate.length
-                  )
+                  ).replace('-', '/')
                 }}
               </td>
               <td class="right-align">
@@ -183,8 +207,8 @@
               <td class="right-align">
                 {{
                   Math.round(
-                    StockInfoData.TaiwanStockDividend.StockDividend[index].StockDividend *
-                      10
+                    StockInfoData.TaiwanStockDividend.StockDividend[index]
+                      .StockDividend * 10
                   ) / 10
                 }}
               </td>
@@ -193,53 +217,41 @@
         </div>
       </div>
     </div>
-    <div class="col s12 m6">
+    <div
+      class="col s12 m6"
+      v-if="Object.keys(StockInfoData[financialGrids[0].key]).length > 0"
+    >
       <ul class="tabs left-align">
-        <li class="tab">
+        <li
+          class="tab"
+          v-for="(financialTab, index) in financialGrids"
+          :key="index"
+        >
           <a
             href="#"
-            :class="[{ active: selectedTab == 'financialFeport' }]"
-            @click.prevent="selectedTab = 'financialFeport'"
-            >財報</a
-          >
-        </li>
-        <li class="tab">
-          <a
-            href="#"
-            :class="[{ active: selectedTab == 'cachFlow' }]"
-            @click.prevent="selectedTab = 'cachFlow'"
-            >現金流量表</a
-          >
-        </li>
-        <li class="tab">
-          <a
-            href="#"
-            :class="[{ active: selectedTab == 'balanceSheet' }]"
-            @click.prevent="selectedTab = 'balanceSheet'"
-            >資產負債表</a
-          >
-        </li>
-        <li class="tab">
-          <a
-            href="#"
-            :class="[{ active: selectedTab == 'news' }]"
-            @click.prevent="selectedTab = 'news'"
-            >新聞</a
+            :class="[{ active: selectedTab == financialTab.key }]"
+            @click.prevent="selectedTab = financialTab.key"
+            >{{ financialTab.label }}</a
           >
         </li>
       </ul>
-
       <div
-        :class="[{ active: selectedTab == 'financialFeport' }]"
-        :style="[{ display: selectedTab == 'financialFeport' ? 'block' : 'none' }]"
+        v-for="(financialTab, index) in financialGrids.filter(
+          (entry) => entry.key != 'TaiwanNews'
+        )"
+        :key="index"
+        :class="[{ active: selectedTab == financialTab.key }]"
+        :style="[
+          { display: selectedTab == financialTab.key ? 'block' : 'none' },
+        ]"
       >
         <div
-          v-if="Object.keys(StockInfoData.TaiwanFinancialStatements).length > 0"
+          v-if="Object.keys(StockInfoData[financialTab.key]).length > 0"
           class="card"
         >
           <div class="card-content">
             <span class="center-align card-title">{{
-              StockInfoData.TaiwanFinancialStatements.update_date
+              StockInfoData[financialTab.key].update_date
             }}</span>
             <table class="striped">
               <tr>
@@ -249,15 +261,16 @@
                 <th class="center-align">元</th>
               </tr>
               <tr
-                v-for="(financialStatement, index) in StockInfoData
-                  .TaiwanFinancialStatements.TaiwanFinancialStatements"
+                v-for="(entry, index) in StockInfoData[financialTab.key][
+                  financialTab.key
+                ]"
                 :key="index"
               >
-                <td class="right-align">{{ financialStatement.origin_name }}</td>
-                <td class="right-align">{{ financialStatement.valueQoQ }}%</td>
-                <td class="right-align">{{ financialStatement.valueYoY }}%</td>
+                <td class="right-align">{{ entry.origin_name }}</td>
+                <td class="right-align">{{ entry.valueQoQ }}%</td>
+                <td class="right-align">{{ entry.valueYoY }}%</td>
                 <td class="right-align">
-                  {{ formatNumber(financialStatement.value) }}
+                  {{ formatNumber(entry.value) }}
                 </td>
               </tr>
             </table>
@@ -265,75 +278,8 @@
         </div>
       </div>
       <div
-        :class="[{ active: selectedTab == 'cachFlow' }]"
-        :style="[{ display: selectedTab == 'cachFlow' ? 'block' : 'none' }]"
-      >
-        <div
-          v-if="Object.keys(StockInfoData.TaiwanCashFlowsStatement).length > 0"
-          class="card"
-        >
-          <div class="card-content">
-            <span class="center-align card-title">{{
-              StockInfoData.TaiwanCashFlowsStatement.update_date
-            }}</span>
-            <table class="striped">
-              <tr>
-                <th class="center-align">項目</th>
-                <th class="center-align">季增</th>
-                <th class="center-align">年增</th>
-                <th class="center-align">元</th>
-              </tr>
-              <tr
-                v-for="(cashFlowsStatement, index) in StockInfoData
-                  .TaiwanCashFlowsStatement.TaiwanCashFlowsStatement"
-                :key="index"
-              >
-                <td class="right-align">{{ cashFlowsStatement.origin_name }}</td>
-                <td class="right-align">{{ cashFlowsStatement.valueQoQ }}%</td>
-                <td class="right-align">{{ cashFlowsStatement.valueYoY }}%</td>
-                <td class="right-align">
-                  {{ formatNumber(cashFlowsStatement.value) }}
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div
-        :class="[{ active: selectedTab == 'balanceSheet' }]"
-        :style="[{ display: selectedTab == 'balanceSheet' ? 'block' : 'none' }]"
-      >
-        <div v-if="Object.keys(StockInfoData.TaiwanBalanceSheet).length > 0" class="card">
-          <div class="card-content">
-            <span class="center-align card-title">{{
-              StockInfoData.TaiwanBalanceSheet.update_date
-            }}</span>
-            <table class="striped">
-              <tr>
-                <th class="center-align">項目</th>
-                <th class="center-align">季增</th>
-                <th class="center-align">年增</th>
-                <th class="center-align">元</th>
-              </tr>
-              <tr
-                v-for="(balanceSheet, index) in StockInfoData.TaiwanBalanceSheet
-                  .TaiwanBalanceSheet"
-                :key="index"
-              >
-                <td class="right-align">{{ balanceSheet.origin_name }}</td>
-                <td class="right-align">{{ balanceSheet.valueQoQ }}%</td>
-                <td class="right-align">{{ balanceSheet.valueYoY }}%</td>
-                <td class="right-align">
-                  {{ formatNumber(balanceSheet.value) }}
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div
-        :class="[{ active: selectedTab == 'news' }]"
-        :style="[{ display: selectedTab == 'news' ? 'block' : 'none' }]"
+        :class="[{ active: selectedTab == 'TaiwanNews' }]"
+        :style="[{ display: selectedTab == 'TaiwanNews' ? 'block' : 'none' }]"
       >
         <div v-if="Object.keys(StockInfoData.TaiwanNews).length > 0">
           <table class="striped">
@@ -341,7 +287,10 @@
               <th class="center-align">時間</th>
               <th class="center-align">標題</th>
             </tr>
-            <tr v-for="(news, index) in StockInfoData.TaiwanNews.TaiwanNews" :key="index">
+            <tr
+              v-for="(news, index) in StockInfoData.TaiwanNews.TaiwanNews"
+              :key="index"
+            >
               <td>{{ news.date }}</td>
               <td>
                 <a :href="news.link" target="_blank">{{ news.title }}</a>
@@ -354,104 +303,100 @@
   </div>
 </template>
 
-<script>
-import { defineComponent, reactive, ref, onMounted } from "vue";
-import axios from "axios";
-import URL from "../config/url";
+<script setup>
+import { reactive, ref, onMounted } from 'vue';
+import axios from 'axios';
+import URL from '../config/url';
 
-export default defineComponent({
-  name: "StockInfo",
-  setup() {
-    const selectedStock = ref("");
-    const StockInfoData = reactive({
-      StockPrice: {},
-      InstitutionalInvestor: {},
-      Shareholding: {},
-      TaiwanStockDividend: {},
-      TaiwanFinancialStatements: {},
-      TaiwanCashFlowsStatement: {},
-      TaiwanBalanceSheet: {},
-      TaiwanNews: {},
-    });
-    const selectedTab = ref("financialFeport");
+const selectedStock = ref('');
+const StockInfoData = reactive({
+  StockPrice: {},
+  InstitutionalInvestor: {},
+  Shareholding: {},
+  TaiwanStockDividend: {},
+  TaiwanFinancialStatements: {},
+  TaiwanCashFlowsStatement: {},
+  TaiwanBalanceSheet: {},
+  TaiwanNews: {},
+});
 
-    const getList = async () => {
-      const response = (
-        await axios.get(`${URL.STOCK_LIST}`).catch((error) => {
-          console.log(error);
-          return axios.get(`${URL.STOCK_LIST}`);
-        })
-      ).data;
+const financialGrids = [
+  { key: 'TaiwanFinancialStatements', label: '財報' },
+  { key: 'TaiwanCashFlowsStatement', label: '現金流量表' },
+  { key: 'TaiwanBalanceSheet', label: '資產負債表' },
+  { key: 'TaiwanNews', label: '新聞' },
+];
 
-      const data = response.data.map((item) => {
-        return response.select_columns.reduce((obj, column, index) => {
-          obj[column] = item[index];
-          return obj;
-        }, {});
-      });
-      return data;
-    };
+const selectedTab = ref(financialGrids[0].key);
 
-    const initAutoComplete = async () => {
-      const data = await getList();
-      //console.log(JSON.stringify(data));
-      const tempData = {};
-      data.forEach((entry) => {
-        tempData[entry.股票代號 + entry.股票名稱] = null;
-      });
-      //console.log(JSON.stringify(tempData));
-      M.Autocomplete.init(document.getElementsByName("autocomplete"), {
-        data: tempData,
-        onAutocomplete: autoCompleteResponse,
-      });
-    };
+const getList = async () => {
+  const response = (
+    await axios.get(`${URL.STOCK_LIST}`).catch((error) => {
+      console.log(error);
+      return axios.get(`${URL.STOCK_LIST}`);
+    })
+  ).data;
 
-    const autoCompleteResponse = async (value) => {
-      selectedStock.value = value.replace(/\D/g, "");
-      //console.log(JSON.stringify(selectedStock));
-      let response = (await axios.get(`${URL.STOCK_INFO}${selectedStock.value}`)).data
-        .data;
-      Object.keys(StockInfoData).forEach((key) => {
-        StockInfoData[key] = response[key];
-      });
-      //console.log(JSON.stringify(StockInfoData));
-      //return StockPrice;
-      //console.log(resultModel.StockPrice.update_date);
-    };
+  const data = response.data.map((item) => {
+    return response.select_columns.reduce((obj, column, index) => {
+      obj[column] = item[index];
+      return obj;
+    }, {});
+  });
+  return data;
+};
 
-    const sum = (array, key) => {
-      return array.reduce((a, b) => a + (b[key] || 0), 0);
-    };
+const initAutoComplete = async () => {
+  const data = await getList();
+  //console.log(JSON.stringify(data));
+  const tempData = {};
+  data.forEach((entry) => {
+    tempData[entry.股票代號 + entry.股票名稱] = null;
+  });
+  //console.log(JSON.stringify(tempData));
+  M.Autocomplete.init(document.getElementsByName('autocomplete'), {
+    data: tempData,
+    onAutocomplete: autoCompleteResponse,
+  });
+};
 
-    const formatNumber = (value) => {
-      const numberLength = value.toString().length;
-      if (numberLength > 8) {
-        return format100million(value);
-      } else if (numberLength > 4) {
-        return format10thousand(value);
-      }
-      return value;
-    };
+const autoCompleteResponse = async (value) => {
+  selectedStock.value = value.replace(/\D/g, '');
+  //console.log(JSON.stringify(selectedStock));
+  let response = (await axios.get(`${URL.STOCK_INFO}${selectedStock.value}`))
+    .data.data;
+  Object.keys(StockInfoData).forEach((key) => {
+    StockInfoData[key] = response[key];
+  });
+  //console.log(JSON.stringify(StockInfoData));
+  //return StockPrice;
+  //console.log(resultModel.StockPrice.update_date);
+};
 
-    const format10thousand = (value) => {
-      return Math.round((value * 100) / 10000) / 100 + "萬";
-    };
+const sum = (array, key) => {
+  return array.reduce((a, b) => a + (b[key] || 0), 0);
+};
 
-    const format100million = (value) => {
-      return Math.round((value * 100) / 100000000) / 100 + "億";
-    };
+const formatNumber = (value) => {
+  const numberLength = value.toString().length;
+  if (numberLength > 8) {
+    return format100million(value);
+  } else if (numberLength > 4) {
+    return format10thousand(value);
+  }
+  return value;
+};
 
-    const initTabs = () => {
-      M.Tabs.init(document.getElementsByName("autocomplete"));
-    };
+const format10thousand = (value) => {
+  return Math.round((value * 100) / 10000) / 100 + '萬';
+};
 
-    onMounted(async () => {
-      await initAutoComplete();
-      initTabs();
-    });
+const format100million = (value) => {
+  return Math.round((value * 100) / 100000000) / 100 + '億';
+};
 
-    return { StockInfoData, sum, formatNumber, selectedTab };
-  },
+onMounted(async () => {
+  await initAutoComplete();
 });
 </script>
 <style scoped>
