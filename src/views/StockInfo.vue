@@ -7,10 +7,9 @@
       </div>
     </div>
   </div>
-
   <div class="row">
     <h5 v-if="Object.keys(StockInfoData.StockPrice).length > 0">
-      日期:{{ StockInfoData.StockPrice.update_date }}
+      日期:{{ StockInfoData.StockPrice.update_date.replace(/-/g, '/') }}
     </h5>
     <div
       class="card horizontal col s12 m6"
@@ -28,9 +27,21 @@
             </tr>
             <tr>
               <td class="right-align">漲跌</td>
-              <td class="right-align" :style="{'color' : (StockInfoData.StockPrice.StockPrice.spread > 0) ? 'red' : 'green'}">
+              <td
+                class="right-align"
+                :style="{
+                  color:
+                    StockInfoData.StockPrice.StockPrice.spread > 0
+                      ? 'red'
+                      : 'green',
+                }"
+              >
                 {{ StockInfoData.StockPrice.StockPrice.spread }}
-                {{ '(' + StockInfoData.StockPrice.StockPrice.spread_per * 100 + '%)'}} 
+                {{
+                  '(' +
+                  StockInfoData.StockPrice.StockPrice.spread_per * 100 +
+                  '%)'
+                }}
               </td>
             </tr>
             <tr>
@@ -158,6 +169,16 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
+  <div class="row" v-if="!!selectedStock">
+    <div class="card col s12 m6">
+      <span class="card-title">EPS</span>
+      <canvas id="EPSChart"></canvas>
+    </div>
+    <div class="card col s12 m6">
+      <span class="card-title">月營收</span>
+      <canvas id="TaiwanMonthRevenueChart"></canvas>
     </div>
   </div>
   <div class="row">
@@ -307,6 +328,7 @@
 import { reactive, ref, onMounted } from 'vue';
 import axios from 'axios';
 import URL from '../config/url';
+import Chart from 'chart.js/auto';
 
 const selectedStock = ref('');
 const StockInfoData = reactive({
@@ -371,6 +393,7 @@ const autoCompleteResponse = async (value) => {
   //console.log(JSON.stringify(StockInfoData));
   //return StockPrice;
   //console.log(resultModel.StockPrice.update_date);
+  await initChart();
 };
 
 const sum = (array, key) => {
@@ -393,6 +416,50 @@ const format10thousand = (value) => {
 
 const format100million = (value) => {
   return Math.round((value * 100) / 100000000) / 100 + '億';
+};
+
+const initChart = async () => {
+  const responseData = (
+    await axios.get(`${URL.STOCK_INFO_PLOT}${selectedStock.value}`)
+  ).data.data;
+  //console.log(JSON.stringify(Object.keys(responseData)));
+
+  Object.keys(responseData).forEach((key) => {
+    const entry = responseData[key];
+    console.log(JSON.stringify(entry));
+    new Chart(document.getElementById(`${key}Chart`), {
+      type: 'line',
+      data: {
+        labels: entry.data.labels,
+        datasets: [
+          {
+            data: entry.data.series.flat(),
+            fill: false,
+            borderColor: '#ff0000',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          title: {
+            display: false,
+          },
+          subtitle: {
+            display: true,
+            color: '#198964',
+            text:
+              (!!entry.MoM ? `月增 ${entry.MoM}%` : '') +
+              (!!entry.QoQ ? `季增 ${entry.QoQ}%` : '') +
+              `, 年增 ${entry.YoY}%`,
+          },
+        },
+      },
+    });
+  });
 };
 
 onMounted(async () => {

@@ -5,27 +5,25 @@
 <script></script>
 
 <style>
-@import url(https://fonts.googleapis.com/earlyaccess/cwtexfangsong.css);
+@import url(https://fonts.googleapis.com/earlyaccess/notosanstc.css);
 
-body {
-  font-family: "cwTeXFangSong", serif;
-}
-/*
+body,
+span,
+p,
+td,
+th,
+a,
 h1,
 h2,
 h3,
 h4,
 h5,
-h6,
-span,
-p,
-td,
-th {
-  font-family: "cwTeXFangSong", serif;
-}*/
+h6 {
+  font-family: 'Noto Sans TC', sans-serif;
+}
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  /*font-family: Avenir, Helvetica, Arial, sans-serif;*/
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
