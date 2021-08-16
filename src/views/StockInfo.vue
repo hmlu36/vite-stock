@@ -223,14 +223,14 @@
                 }}
               </td>
               <td class="right-align">
-                {{ Math.round(cashDividend.CashDividend * 10) / 10 }}
+                {{ Math.round(cashDividend.CashDividend * 100) / 100 }}
               </td>
               <td class="right-align">
                 {{
                   Math.round(
                     StockInfoData.TaiwanStockDividend.StockDividend[index]
-                      .StockDividend * 10
-                  ) / 10
+                      .StockDividend * 100
+                  ) / 100
                 }}
               </td>
             </tr>
