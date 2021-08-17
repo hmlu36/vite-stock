@@ -343,10 +343,10 @@ const StockInfoData = reactive({
 });
 
 const financialGrids = [
+  { key: 'TaiwanNews', label: '新聞' },
   { key: 'TaiwanFinancialStatements', label: '財報' },
   { key: 'TaiwanCashFlowsStatement', label: '現金流量表' },
   { key: 'TaiwanBalanceSheet', label: '資產負債表' },
-  { key: 'TaiwanNews', label: '新聞' },
 ];
 
 const selectedTab = ref(financialGrids[0].key);
