@@ -11,5 +11,10 @@ export default createRouter({
     path: "/stockInfo",
     name: "StockInfo",
     component: () => import("./views/StockInfo.vue"),
+  },
+  {
+    path: "/stockDividend",
+    name: "StockDividend",
+    component: () => import("./views/StockDividend.vue"),
   }]
 });
