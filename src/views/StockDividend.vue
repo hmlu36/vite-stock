@@ -8,6 +8,7 @@
         <th>股票</th>
         <th>合計</th>
       </tr>
+      <tr v-for="(entry, index) in calculateData.stockList" :key="index"></tr>
     </table>
   </div>
 </template>
@@ -17,8 +18,8 @@ import { reactive, ref, onMounted } from 'vue';
 import axios from 'axios';
 
 const calculateData = reactive({
-    stockList: [],
-    total: 0
+  stockList: [],
+  total: 0,
 });
 
 const StockInfoData = reactive({
@@ -31,7 +32,6 @@ const StockInfoData = reactive({
   TaiwanBalanceSheet: {},
   TaiwanNews: {},
 });
-
 
 const autoCompleteResponse = async (value) => {
   selectedStock.value = value.replace(/\D/g, '');
